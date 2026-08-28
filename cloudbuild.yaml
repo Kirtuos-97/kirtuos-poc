@@ -1,0 +1,25 @@
+steps:
+  # Step 1: Initialize Terraform
+  - id: 'Terraform Init'
+    name: 'hashicorp/terraform:1.5.0'
+    entrypoint: 'sh'
+    args: 
+      - '-c'
+      - 'terraform init'
+
+  # Step 2: Apply Terraform Configuration
+  - id: 'Terraform Apply'
+    name: 'hashicorp/terraform:1.5.0'
+    entrypoint: 'sh'
+    args: 
+      - '-c'
+      - 'terraform apply -auto-approve -var="project_id=kirtuos-poc"'
+
+  # Step 3: Execute Stored Procedure via bq CLI
+  - id: 'Populate Table via Stored Procedure'
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args: 
+      - '-c'
+      - |
+        bq query --use_legacy_sql=false 'CALL `kirtuos-poc.poc_dataset.populate_public_data`()'
