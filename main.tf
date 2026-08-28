@@ -5,7 +5,7 @@ provider "google" {
 
 resource "google_bigquery_dataset" "poc_dataset" {
   dataset_id                 = "poc_dataset"
-  location                   = "asia-south1"
+  location                   = "US"
   delete_contents_on_destroy = true
 }
 
