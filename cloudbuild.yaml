@@ -22,7 +22,7 @@ steps:
     args: 
       - '-c'
       - |
-        bq query --use_legacy_sql=false 'CALL `kirtuos-poc.poc_dataset.populate_public_data`()'
+        bq query --use_legacy_sql=false --location=US 'CALL `kirtuos-poc.poc_dataset.populate_public_data`()'
 
 options:
   logging: CLOUD_LOGGING_ONLY
