@@ -12,7 +12,7 @@ resource "google_bigquery_dataset" "poc_dataset" {
 # --- Dynamic Tables ---
 locals {
   # Scans the 'tables' folder for all .json files
-  table_files = fileset("${path.module}/tables", "*.json")
+  table_files = fileset("${path.module}/code-repository/big-query/tables", "*.json")
 }
 
 resource "google_bigquery_table" "dynamic_tables" {
@@ -24,13 +24,17 @@ resource "google_bigquery_table" "dynamic_tables" {
   table_id   = replace(each.value, ".json", "")
   
   # Reads the specific JSON file for this loop iteration
-  schema     = file("${path.module}/tables/${each.value}")
+  schema     = file("${path.module}/code-repository/big-query/tables/${each.value}")
+
+  # let's terraform delete tables
+  deletion_protection = false
+
 }
 
 # --- Dynamic Procedures ---
 locals {
   # Scans the 'procedures' folder for all .sql files
-  procedure_files = fileset("${path.module}/procedures", "*.sql")
+  procedure_files = fileset("${path.module}/code-repository/big-query/procedures", "*.sql")
 }
 
 resource "google_bigquery_routine" "dynamic_procedures" {
@@ -45,5 +49,5 @@ resource "google_bigquery_routine" "dynamic_procedures" {
   language        = "SQL"
   
   # Reads the specific SQL file for this loop iteration
-  definition_body = file("${path.module}/procedures/${each.value}")
+  definition_body = file("${path.module}/code-repository/big-query/procedures/${each.value}")
 }
