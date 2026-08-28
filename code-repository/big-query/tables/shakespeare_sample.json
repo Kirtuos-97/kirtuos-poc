@@ -1,0 +1,6 @@
+[
+  {"name": "word", "type": "STRING", "mode": "REQUIRED"},
+  {"name": "word_count", "type": "INTEGER", "mode": "REQUIRED"},
+  {"name": "corpus", "type": "STRING", "mode": "REQUIRED"},
+  {"name": "corpus_date", "type": "INTEGER", "mode": "REQUIRED"}
+]
