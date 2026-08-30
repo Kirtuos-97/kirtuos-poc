@@ -1,53 +1,44 @@
-provider "google" {
-  project = var.project_id
-  region  = "asia-south1"
-}
-
-resource "google_bigquery_dataset" "poc_dataset" {
-  dataset_id                 = "poc_dataset"
-  location                   = "US"
-  delete_contents_on_destroy = true
-}
-
-# --- Dynamic Tables ---
+# --- Dynamic Tables (SQL DDL) ---
 locals {
-  # Scans the 'tables' folder for all .json files
-  table_files = fileset("${path.module}/code-repository/big-query/tables", "*.json")
+  table_files = fileset("${path.module}/code-repository/big-query/tables", "*.sql")
 }
 
-resource "google_bigquery_table" "dynamic_tables" {
+resource "google_bigquery_job" "execute_table_ddl" {
   for_each = local.table_files
 
-  dataset_id = google_bigquery_dataset.poc_dataset.dataset_id
-  
-  # Removes the .json extension to generate the table name (e.g., "shakespeare_sample")
-  table_id   = replace(each.value, ".json", "")
-  
-  # Reads the specific JSON file for this loop iteration
-  schema     = file("${path.module}/code-repository/big-query/tables/${each.value}")
+  # Generates a unique Job ID based on the filename and file content
+  job_id   = "table_ddl_${replace(each.value, ".sql", "")}_${md5(file("${path.module}/code-repository/big-query/tables/${each.value}"))}"
+  location = google_bigquery_dataset.poc_dataset.location
 
-  # let's terraform delete tables
-  deletion_protection = false
-
+  query {
+    query = templatefile("${path.module}/code-repository/big-query/tables/${each.value}", {
+      project_id = var.project_id
+      dataset_id = google_bigquery_dataset.poc_dataset.dataset_id
+    })
+    use_legacy_sql = false
+  }
 }
 
-# --- Dynamic Procedures ---
+# --- Dynamic Procedures (SQL DDL) ---
 locals {
-  # Scans the 'procedures' folder for all .sql files
   procedure_files = fileset("${path.module}/code-repository/big-query/procedures", "*.sql")
 }
 
-resource "google_bigquery_routine" "dynamic_procedures" {
+resource "google_bigquery_job" "execute_procedure_ddl" {
   for_each = local.procedure_files
 
-  dataset_id      = google_bigquery_dataset.poc_dataset.dataset_id
-  
-  # Removes the .sql extension to generate the procedure name (e.g., "populate_public_data")
-  routine_id      = replace(each.value, ".sql", "")
-  
-  routine_type    = "PROCEDURE"
-  language        = "SQL"
-  
-  # Reads the specific SQL file for this loop iteration
-  definition_body = file("${path.module}/code-repository/big-query/procedures/${each.value}")
+  # Generates a unique Job ID based on the filename and file content
+  job_id   = "proc_ddl_${replace(each.value, ".sql", "")}_${md5(file("${path.module}/code-repository/big-query/procedures/${each.value}"))}"
+  location = google_bigquery_dataset.poc_dataset.location
+
+  query {
+    query = templatefile("${path.module}/code-repository/big-query/procedures/${each.value}", {
+      project_id = var.project_id
+      dataset_id = google_bigquery_dataset.poc_dataset.dataset_id
+    })
+    use_legacy_sql = false
+  }
+
+  # Forces Terraform to create tables before compiling procedures
+  depends_on = [google_bigquery_job.execute_table_ddl]
 }
