@@ -27,6 +27,10 @@ resource "google_bigquery_job" "execute_table_ddl" {
       dataset_id = google_bigquery_dataset.poc_dataset.dataset_id
     })
     use_legacy_sql = false
+    # Disable default dispositions for DDL execution
+    create_disposition = ""
+    write_disposition  = ""
+    
   }
 }
 
@@ -48,6 +52,9 @@ resource "google_bigquery_job" "execute_procedure_ddl" {
       dataset_id = google_bigquery_dataset.poc_dataset.dataset_id
     })
     use_legacy_sql = false
+    # Disable default dispositions for DDL execution
+    create_disposition = ""
+    write_disposition  = ""
   }
 
   # Forces Terraform to create tables before compiling procedures

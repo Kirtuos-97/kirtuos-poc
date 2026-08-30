@@ -4,4 +4,4 @@ BEGIN
   SELECT word, word_count, corpus, corpus_date 
   FROM `bigquery-public-data.samples.shakespeare` 
   LIMIT 1000;
-END;--procedure that loads the data
+END;--procedure that loads the data v2
