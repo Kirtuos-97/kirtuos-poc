@@ -5,3 +5,4 @@ BEGIN
   FROM `bigquery-public-data.samples.shakespeare` 
   LIMIT 1000;
 END;
+--procedure that loads the data
