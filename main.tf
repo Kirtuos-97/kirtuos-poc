@@ -1,3 +1,14 @@
+provider "google" {
+  project = var.project_id
+  region  = "asia-south1"
+}
+
+resource "google_bigquery_dataset" "poc_dataset" {
+  dataset_id                 = "poc_dataset"
+  location                   = "US"
+  delete_contents_on_destroy = true
+}
+
 # --- Dynamic Tables (SQL DDL) ---
 locals {
   table_files = fileset("${path.module}/code-repository/big-query/tables", "*.sql")
