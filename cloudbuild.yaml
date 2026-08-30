@@ -16,13 +16,13 @@ steps:
       - 'terraform apply -auto-approve -var="project_id=kirtuos-poc"'
 
   # Step 3: Execute Stored Procedure via bq CLI
-  - id: 'Populate Table via Stored Procedure'
-    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'bash'
-    args: 
-      - '-c'
-      - |
-        bq query --use_legacy_sql=false --location=US 'CALL `kirtuos-poc.poc_dataset.populate_public_data`()'
+  # - id: 'Populate Table via Stored Procedure'
+  #   name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  #   entrypoint: 'bash'
+  #   args: 
+  #     - '-c'
+  #     - |
+  #       bq query --use_legacy_sql=false --location=US 'CALL `kirtuos-poc.poc_dataset.populate_public_data`()'
 
 options:
   logging: CLOUD_LOGGING_ONLY
