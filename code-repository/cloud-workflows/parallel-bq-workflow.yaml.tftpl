@@ -1,0 +1,27 @@
+main:
+  steps:
+    - runProceduresInParallel:
+        parallel:
+          branches:
+            - firstProcedureBranch:
+                steps:
+                  - callFirstProc:
+                      call: googleapis.bigquery.v2.jobs.insert
+                      args:
+                        projectId: "${project_id}"
+                        body:
+                          configuration:
+                            query:
+                              query: "CALL `${project_id}.${dataset_id}.populate_google_trends_wb_DL`();"
+                              useLegacySql: false
+            - secondProcedureBranch:
+                steps:
+                  - callSecondProc:
+                      call: googleapis.bigquery.v2.jobs.insert
+                      args:
+                        projectId: "${project_id}"
+                        body:
+                          configuration:
+                            query:
+                              query: "CALL `${project_id}.${dataset_id}.populate_public_data`();"
+                              useLegacySql: false
