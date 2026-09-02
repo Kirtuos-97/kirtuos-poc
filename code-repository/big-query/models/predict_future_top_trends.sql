@@ -1,4 +1,4 @@
-create or replace model `{project_id}.{dataset_id}.predict_future_top_trends`
+create or replace model `${project_id}.${dataset_id}.predict_future_top_trends`
 options(
   model_type='ARIMA_PLUS',
   time_series_timestamp_col='refresh_date',
