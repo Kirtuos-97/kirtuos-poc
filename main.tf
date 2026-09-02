@@ -3,13 +3,23 @@ provider "google" {
   region  = "asia-south1"
 }
 
+#dataset for raw tables and procedures
 resource "google_bigquery_dataset" "poc_dataset" {
   dataset_id                 = "poc_dataset"
   location                   = "US"
   delete_contents_on_destroy = true
 }
 
+#dataset for analytics
+resource "google_bigquery_dataset" "ml_analytics" {
+  dataset_id = "ml_analytics"
+  location="US"
+  delete_contents_on_destroy = true
+}
+
+#--------------------------------------------------
 # --- Dynamic Tables (SQL DDL) ---
+#--------------------------------------------------
 locals {
   table_files = fileset("${path.module}/code-repository/big-query/tables", "*.sql")
 }
@@ -34,7 +44,10 @@ resource "google_bigquery_job" "execute_table_ddl" {
   }
 }
 
+#--------------------------------------------------
 # --- Dynamic Procedures (SQL DDL) ---
+#--------------------------------------------------
+
 locals {
   procedure_files = fileset("${path.module}/code-repository/big-query/procedures", "*.sql")
 }
@@ -61,6 +74,44 @@ resource "google_bigquery_job" "execute_procedure_ddl" {
   depends_on = [google_bigquery_job.execute_table_ddl]
 }
 
+#--------------------------------------------------
+# --- Dynamic ML Models (SQL DDL) ---
+#--------------------------------------------------
+
+locals {
+  model_files = fileset("${path.module}/code-repository/big-query/models", "*.sql")
+}
+
+resource "google_bigquery_job" "execute_model_ddl" {
+  for_each = local.model_files
+
+  # Generates a unique Job ID based on the filename and file content
+  job_id   = "model_ddl_${replace(each.value, ".sql", "")}_${md5(file("${path.module}/code-repository/big-query/models/${each.value}"))}"
+  location = google_bigquery_dataset.poc_dataset.location
+
+  query {
+    query = templatefile("${path.module}/code-repository/big-query/models/${each.value}", {
+      project_id = var.project_id
+      dataset_id = google_bigquery_dataset.ml_analytics.dataset_id
+    })
+    use_legacy_sql     = false
+    
+    # REQUIRED FOR DDL: Disable default dispositions
+    create_disposition = ""
+    write_disposition  = ""
+  }
+
+  # Ensure tables exist and data is populated before training the model
+  depends_on = [
+    google_bigquery_job.execute_table_ddl,
+    google_bigquery_job.execute_procedure_ddl
+  ]
+}
+
+#--------------------------------------------------
+# --- Dynamic Cloud Workflows (yaml.tftpl) ---
+#--------------------------------------------------
+
 resource "google_workflows_workflow" "parallel_bq_workflow" {
   name            = "parallel-bq-workflow"
   region          = "asia-south1"
@@ -73,6 +124,10 @@ resource "google_workflows_workflow" "parallel_bq_workflow" {
 
   depends_on = [google_bigquery_job.execute_procedure_ddl]
 }
+
+#--------------------------------------------------
+# --- Cloud Scheduler Jobs ---
+#--------------------------------------------------
 
 resource "google_cloud_scheduler_job" "daily_bq_trigger" {
   name             = "bq-workflow-daily-trigger"
