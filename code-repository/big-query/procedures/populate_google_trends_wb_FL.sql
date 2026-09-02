@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `${project_id}.${dataset_id}.populate_trends_wb_FL`()
+CREATE OR REPLACE PROCEDURE `${project_id}.${dataset_id}.populate_google_trends_wb_FL`()
 BEGIN
   
   --truncate table
