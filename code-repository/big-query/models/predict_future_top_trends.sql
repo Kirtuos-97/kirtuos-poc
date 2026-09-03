@@ -12,3 +12,4 @@ SELECT
   score
 FROM
   `${project_id}.${dataset_id}.google_trends_wb`;
+--model with ARIMA_PLUS
