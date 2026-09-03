@@ -92,7 +92,8 @@ resource "google_bigquery_job" "execute_model_ddl" {
   query {
     query = templatefile("${path.module}/code-repository/big-query/models/${each.value}", {
       project_id = var.project_id
-      dataset_id = google_bigquery_dataset.ml_analytics.dataset_id
+      ml_dataset_id = google_bigquery_dataset.ml_analytics.dataset_id
+      dataset_id=google_bigquery_dataset.poc_dataset.dataset_id
     })
     use_legacy_sql     = false
     
