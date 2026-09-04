@@ -2,19 +2,19 @@ CREATE OR REPLACE MODEL `${project_id}.${ml_dataset_id}.flight_delay_classifier_
 OPTIONS(
   model_type = 'BOOSTED_TREE_CLASSIFIER',
   input_label_cols = ['is_severely_delayed'],
-  max_iterations = 40,
+  max_iterations = 45,
   max_tree_depth = 6,
-  learn_rate = 0.1,
+  learn_rate = 0.08,
   l2_reg = 1.5,
   tree_method = 'HIST',
   subsample = 0.85,
   early_stop = TRUE,
   min_rel_progress = 0.005,
-  auto_class_weights = TRUE
+  auto_class_weights = FALSE,
 ) AS
 SELECT
   -- Categorical & Spatial Route Interactions
-  airline,
+  --airline,
   departure_airport,
   arrival_airport,
   CONCAT(departure_airport, '->', arrival_airport) AS route,
@@ -25,7 +25,7 @@ SELECT
   EXTRACT(HOUR FROM departure_schedule_timestamp) AS scheduled_departure_hour,
   EXTRACT(DAYOFWEEK FROM flight_date) AS day_of_week,
   EXTRACT(MONTH FROM flight_date) AS flight_month,
-  EXTRACT(QUARTER FROM flight_date) AS flight_quarter,
+  --EXTRACT(QUARTER FROM flight_date) AS flight_quarter,
   
   -- Flag peak congestion windows (7-9 AM morning rush, 4-8 PM evening bank)
   IF(EXTRACT(HOUR FROM departure_schedule_timestamp) IN (7, 8, 9, 16, 17, 18, 19, 20), 1, 0) AS is_rush_hour,
