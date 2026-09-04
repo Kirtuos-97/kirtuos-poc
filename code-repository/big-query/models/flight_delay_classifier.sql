@@ -34,4 +34,4 @@ WHERE
   -- Deterministic sample for efficient slot usage
   AND MOD(ABS(FARM_FINGERPRINT(CONCAT(airline, CAST(flight_date AS STRING), CAST(departure_schedule_timestamp AS STRING)))), 10) <= 2;
 
--- deploy boosted tree classifier 2006_2010 v1
+-- deploy boosted tree classifier 2006_2010 v2
