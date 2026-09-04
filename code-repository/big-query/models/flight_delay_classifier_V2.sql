@@ -10,7 +10,7 @@ OPTIONS(
   subsample = 0.85,
   early_stop = TRUE,
   min_rel_progress = 0.005,
-  auto_class_weights = FALSE,
+  auto_class_weights = FALSE
 ) AS
 SELECT
   -- Categorical & Spatial Route Interactions
