@@ -9,7 +9,7 @@ BEGIN
   END IF;
   
   IF end_year IS NULL THEN
-    SET end_year = 2023;
+    SET end_year = 2026;
   END IF;
 
   TRUNCATE TABLE `${project_id}.${dataset_id}.retail_sales_features`;
