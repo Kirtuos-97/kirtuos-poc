@@ -1,4 +1,4 @@
-CREATE OR REPLACE MODEL `${project_id}.${ml_dataset_id}.predict_retail_demand_automl`
+CREATE OR REPLACE MODEL `${project_id}.${ml_dataset_id}.predict_retail_demands_AUTOML`
 OPTIONS(
   model_type = 'AUTOML_REGRESSOR',
   input_label_cols = ['bottles_sold'],
@@ -7,8 +7,7 @@ OPTIONS(
   budget_hours = 1.0,
   
   -- Optimization objective: RMSE heavily penalizes the bulk-order forecast misses
-  optimization_objective = 'MINIMIZE_RMSE',
-  data_split_method = 'AUTO_SPLIT'
+  optimization_objective = 'MINIMIZE_RMSE'
 ) AS
 SELECT
   bottles_sold,          
