@@ -13,8 +13,7 @@ OPTIONS(
   min_rel_progress = 0.001,
   
   -- Validation Split
-  data_split_method = 'AUTO_SPLIT',
-  data_split_eval_fraction = 0.20
+  data_split_method = 'AUTO_SPLIT'
 ) AS
 SELECT
   bottles_sold,          -- Label (Target)
