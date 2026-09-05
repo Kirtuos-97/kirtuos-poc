@@ -1,3 +1,6 @@
+#------------------------------------
+# main workflow
+#------------------------------------
 main:
   steps:
     - runProceduresInParallel:
@@ -38,7 +41,7 @@ main:
                         body:
                           configuration:
                             query:
-                              query: "CALL ${project_id}.${dataset_id}.populate_airline_ontime_data_FL`(NULL,NULL);"
+                              query: "CALL `${project_id}.${dataset_id}.populate_airline_ontime_data_FL`(NULL,NULL);"
                               useLegacySql: false
                   #Step 3.2
                   - callFourthProc:
@@ -48,5 +51,5 @@ main:
                         body:
                           configuration:
                             query:
-                              query: "CALL ${project_id}.${dataset_id}.populate_retail_sales_features_FL(NULL,NULL);"
+                              query: "CALL `${project_id}.${dataset_id}.populate_retail_sales_features_FL`(NULL,NULL);"
                               useLegacySql: false
