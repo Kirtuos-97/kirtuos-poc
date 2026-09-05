@@ -4,7 +4,7 @@ OPTIONS(
   model_type = 'LOGISTIC_REG',
   input_label_cols = ['label'],
   auto_class_weights = FALSE,
-  class_weights=[STRUCT('0' AS label, 1.0 AS weight), STRUCT('1' AS label, 5.0 AS weight)],
+  class_weights=[STRUCT('0' AS label, 1.0 AS weight), STRUCT('1' AS label, 15.0 AS weight)],
   data_split_method = 'AUTO_SPLIT'
 ) AS
 SELECT
