@@ -13,10 +13,10 @@ BEGIN
   END IF;
 
   -- 2. Truncate the existing table to ensure a clean load
-  TRUNCATE TABLE `your_dataset.ga_logistic_features`;
+  TRUNCATE TABLE `${project_id}.${dataset_id}.ga_logistic_features`;
 
   -- 3. Load the data into the partitioned table
-  INSERT INTO `your_dataset.ga_logistic_features`
+  INSERT INTO `${project_id}.${dataset_id}.ga_logistic_features`
   SELECT
     PARSE_DATE('%Y%m%d', date) AS visit_date,
     IF(totals.transactions IS NULL, 0, 1) AS label,
