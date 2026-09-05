@@ -5,11 +5,11 @@ CREATE OR REPLACE PROCEDURE `${project_id}.${dataset_id}.populate_ga_logistic_fe
 BEGIN
   -- 1. Handle NULL parameters by setting default table suffixes
   IF start_date IS NULL THEN
-    SET start_date = '20260801';
+    SET start_date = '20160801';
   END IF;
   
   IF end_date IS NULL THEN
-    SET end_date = '20261231';
+    SET end_date = '20161231';
   END IF;
 
   -- 2. Truncate the existing table to ensure a clean load
