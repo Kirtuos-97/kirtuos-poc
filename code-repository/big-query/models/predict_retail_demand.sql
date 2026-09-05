@@ -27,4 +27,6 @@ SELECT
   order_month,           -- Seasonality
   day_of_week            -- Weekly replenishment cycle
 FROM
-  `${project_id}.${dataset_id}.retail_sales_features`;
+  `${project_id}.${dataset_id}.retail_sales_features`
+WHERE 
+  bottles_sold <=50;--testing performance on the most dominant group
