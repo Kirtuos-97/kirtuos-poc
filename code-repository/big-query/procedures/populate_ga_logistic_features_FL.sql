@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `${project_id}.${dataset_id}.load_ga_training_data`(
+CREATE OR REPLACE PROCEDURE `${project_id}.${dataset_id}.populate_ga_logistic_features_FL`(
   start_date STRING, 
   end_date STRING
 )
