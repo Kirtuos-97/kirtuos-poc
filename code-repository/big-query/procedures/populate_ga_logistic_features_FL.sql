@@ -9,7 +9,7 @@ BEGIN
   END IF;
   
   IF end_date IS NULL THEN
-    SET end_date = '20161231';
+    SET end_date = '20171231';
   END IF;
 
   -- 2. Truncate the existing table to ensure a clean load
