@@ -3,6 +3,7 @@ main:
     - runProceduresInParallel:
         parallel:
           branches:
+            #Step 1
             - firstProcedureBranch:
                 steps:
                   - callFirstProc:
@@ -14,6 +15,7 @@ main:
                             query:
                               query: "CALL `${project_id}.${dataset_id}.populate_google_trends_wb_DL`();"
                               useLegacySql: false
+            #Step 2
             - secondProcedureBranch:
                 steps:
                   - callSecondProc:
@@ -24,4 +26,27 @@ main:
                           configuration:
                             query:
                               query: "CALL `${project_id}.${dataset_id}.populate_public_data`();"
+                              useLegacySql: false
+            #Step 3
+            - thirdProcedureBranch:
+                steps:
+                  #Step 3.1
+                  - callThirdProc:
+                      call: googleapis.bigquery.v2.jobs.insert
+                      args:
+                        projectId: "${project_id}"
+                        body:
+                          configuration:
+                            query:
+                              query: "CALL ${project_id}.${dataset_id}.populate_airline_ontime_data_FL`(NULL,NULL);"
+                              useLegacySql: false
+                  #Step 3.2
+                  - callFourthProc:
+                      call: googleapis.bigquery.v2.jobs.insert
+                      args:
+                        projectId: "${project_id}"
+                        body:
+                          configuration:
+                            query:
+                              query: "CALL ${project_id}.${dataset_id}.populate_retail_sales_features_FL(NULL,NULL);"
                               useLegacySql: false
