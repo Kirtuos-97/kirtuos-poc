@@ -38,7 +38,7 @@ client = genai.Client(
 )
 
 @functions_framework.http
-def extract_invoice(request):
+def invoice_extractor(request):
     if request.method == "OPTIONS":
         headers = {
             "Access-Control-Allow-Origin": "*",
