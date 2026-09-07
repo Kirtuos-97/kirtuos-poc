@@ -110,6 +110,95 @@ resource "google_bigquery_job" "execute_model_ddl" {
 }
 
 #--------------------------------------------------
+### --- Cloud Storage Bucket for Function Zips ---
+#--------------------------------------------------
+resource "google_storage_bucket" "function_artifacts" {
+  name                        = "${var.project_id}-function-artifacts"
+  location                    = "asia-south1"
+  uniform_bucket_level_access = true
+  force_destroy               = true
+}
+
+#--------------------------------------------------
+### --- Dynamic Discovery of Function Folders ---
+#--------------------------------------------------
+locals {
+  # Discovers all distinct subdirectories under code-repository/functions/
+  function_dirs = toset([
+    for f in fileset("${path.module}/code-repository/functions", "**") :
+    dirname(f) if dirname(f) != "."
+  ])
+}
+
+# 1. Archive each folder separately
+data "archive_file" "function_zips" {
+  for_each    = local.function_dirs
+  type        = "zip"
+  source_dir  = "${path.module}/code-repository/functions/${each.value}"
+  output_path = "${path.module}/.terraform/archives/${each.value}.zip"
+}
+
+# 2. Upload zip to GCS; MD5 ensures re-upload and re-deploy only when code changes
+resource "google_storage_bucket_object" "function_sources" {
+  for_each = local.function_dirs
+  name     = "sources/${each.value}-${data.archive_file.function_zips[each.value].output_md5}.zip"
+  bucket   = google_storage_bucket.function_artifacts.name
+  source   = data.archive_file.function_zips[each.value].output_path
+}
+
+# 3. Provision each function dynamically
+resource "google_cloudfunctions2_function" "dynamic_functions" {
+  for_each    = local.function_dirs
+  name        = each.value
+  location    = "asia-south1"
+  description = "Dynamic deployment for ${each.value}"
+
+  build_config {
+    runtime     = "python311"
+    # Entry point convention: replace hyphens with underscores (e.g. invoice_extractor)
+    entry_point = replace(each.value, "-", "_")
+    source {
+      storage_source {
+        bucket = google_storage_bucket.function_artifacts.name
+        object = google_storage_bucket_object.function_sources[each.value].name
+      }
+    }
+  }
+
+  service_config {
+    max_instance_count    = 5
+    min_instance_count    = 0
+    available_memory      = "512M"
+    timeout_seconds       = 120
+    service_account_email = "bq-pipeline-sa@${var.project_id}.iam.gserviceaccount.com"
+
+    # Dynamically inject project_id into runtime container
+    environment_variables = {
+      GCP_PROJECT_ID = var.project_id
+      GCP_LOCATION   = "asia-south1"
+    }
+  }
+}
+
+# Optional: Allow HTTP invocation for each function
+resource "google_cloud_run_service_iam_member" "invokers" {
+  for_each = local.function_dirs
+  location = google_cloudfunctions2_function.dynamic_functions[each.value].location
+  service  = google_cloudfunctions2_function.dynamic_functions[each.value].name
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+
+# Output URLs for all deployed functions
+output "deployed_function_urls" {
+  value = {
+    for k, v in google_cloudfunctions2_function.dynamic_functions :
+    k => v.service_config[0].uri
+  }
+}
+
+
+#--------------------------------------------------
 # --- Dynamic Cloud Workflows (yaml.tftpl) ---
 #--------------------------------------------------
 
